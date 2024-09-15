@@ -6,8 +6,8 @@ feather.replace();
 
 let assets = [];
 
-// Replace 'YOUR_CANISTER_ID' with your actual canister ID
-const canisterId = 'YOUR_CANISTER_ID'; // e.g., 'ryjl3-tyaaa-aaaaa-aaaba-cai'
+// Replace with your actual canister ID (should be a valid base32-encoded string)
+const canisterId = 'rrkah-fqaaa-aaaaa-aaaaq-cai';
 const agent = new HttpAgent({ host: "https://ic0.app" });
 const backend = Actor.createActor(idlFactory, { agent, canisterId });
 
