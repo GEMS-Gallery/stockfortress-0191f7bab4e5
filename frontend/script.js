@@ -1,34 +1,32 @@
-import { Actor, HttpAgent } from "@dfinity/agent";
-import { idlFactory } from "./declarations/backend/backend.did.js";
-
 // Initialize Feather Icons
 feather.replace();
 
 let assets = [];
 
-// Replace with your actual canister ID (should be a valid base32-encoded string)
-const canisterId = 'rrkah-fqaaa-aaaaa-aaaaq-cai';
-const agent = new HttpAgent({ host: "https://ic0.app" });
-agent.fetchRootKey().catch(err => {
-  console.warn("Unable to fetch root key. Check to ensure that your local replica is running");
-  console.error(err);
-});
+// Load assets from localStorage
+function loadAssets() {
+    const storedAssets = localStorage.getItem('assets');
+    if (storedAssets) {
+        assets = JSON.parse(storedAssets);
+    }
+}
 
-const backend = Actor.createActor(idlFactory, { agent, canisterId });
+// Save assets to localStorage
+function saveAssets() {
+    localStorage.setItem('assets', JSON.stringify(assets));
+}
 
-// Fetch assets from the canister
+// Fetch assets (now from localStorage)
 async function fetchAssets() {
     try {
         console.log("Fetching assets...");
-        const assetsJson = await backend.getAssets();
-        console.log("Assets JSON:", assetsJson);
-        assets = JSON.parse(assetsJson);
-        console.log("Parsed assets:", assets);
+        loadAssets();
+        console.log("Loaded assets:", assets);
         displayHoldings();
         updateCharts();
     } catch (error) {
         console.error('Error fetching assets:', error);
-        alert('Failed to fetch assets. Please check the console for more details and ensure the backend is properly deployed.');
+        alert('Failed to fetch assets. Please check the console for more details.');
     }
 }
 
@@ -135,16 +133,15 @@ document.getElementById('add-asset-form').addEventListener('submit', async (e) =
 
     try {
         console.log("Adding asset:", { symbol, name, quantity, type });
-        const newAssetJson = await backend.addAsset(symbol, name, quantity, type);
-        console.log("New asset JSON:", newAssetJson);
-        const newAsset = JSON.parse(newAssetJson);
+        const newAsset = { symbol, name, quantity, assetType: type };
         assets.push(newAsset);
+        saveAssets();
         displayHoldings();
         updateCharts();
         closeAddAssetModal();
     } catch (error) {
         console.error('Error adding asset:', error);
-        alert('Failed to add asset. Please check the console for more details and ensure the backend is properly deployed.');
+        alert('Failed to add asset. Please check the console for more details.');
     }
 });
 

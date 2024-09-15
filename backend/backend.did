@@ -1,6 +1,3 @@
 service : {
-  addAsset: (text, text, float64, text) -> (text);
-  deleteAsset: (nat) -> (bool);
-  getAssets: () -> (text) query;
-  updateAsset: (nat, text, text, float64, text) -> (opt text);
+  greet: (text) -> (text);
 }
