@@ -14,8 +14,11 @@ const backend = Actor.createActor(idlFactory, { agent, canisterId });
 // Fetch assets from the canister
 async function fetchAssets() {
     try {
+        console.log("Fetching assets...");
         const assetsJson = await backend.getAssets();
+        console.log("Assets JSON:", assetsJson);
         assets = JSON.parse(assetsJson);
+        console.log("Parsed assets:", assets);
         displayHoldings();
         updateCharts();
     } catch (error) {
@@ -77,6 +80,7 @@ async function fetchMarketData(symbol) {
 
 // Function to switch between Holdings and Allocations pages
 function showPage(pageName) {
+    console.log("Showing page:", pageName);
     const pages = document.querySelectorAll('#holdings-page, #allocations-page');
     const tabs = document.querySelectorAll('.tab');
 
@@ -101,12 +105,14 @@ function showPage(pageName) {
 
 // Show Add Asset Modal
 function showAddAssetModal() {
+    console.log("Showing add asset modal");
     const modal = document.getElementById('add-asset-modal');
     modal.style.display = 'block';
 }
 
 // Close Add Asset Modal
 function closeAddAssetModal() {
+    console.log("Closing add asset modal");
     const modal = document.getElementById('add-asset-modal');
     modal.style.display = 'none';
     document.getElementById('add-asset-form').reset();
@@ -115,13 +121,16 @@ function closeAddAssetModal() {
 // Handle Add Asset Form Submission
 document.getElementById('add-asset-form').addEventListener('submit', async (e) => {
     e.preventDefault();
+    console.log("Add asset form submitted");
     const symbol = document.getElementById('symbol').value.toUpperCase();
     const name = document.getElementById('name').value;
     const quantity = parseFloat(document.getElementById('quantity').value);
     const type = document.getElementById('type').value;
 
     try {
+        console.log("Adding asset:", { symbol, name, quantity, type });
         const newAssetJson = await backend.addAsset(symbol, name, quantity, type);
+        console.log("New asset JSON:", newAssetJson);
         const newAsset = JSON.parse(newAssetJson);
         assets.push(newAsset);
         displayHoldings();
@@ -134,6 +143,7 @@ document.getElementById('add-asset-form').addEventListener('submit', async (e) =
 
 // Update Charts
 async function updateCharts() {
+    console.log("Updating charts");
     // Allocation Chart
     const assetTypes = {};
     for (const asset of assets) {
@@ -216,6 +226,7 @@ async function updateCharts() {
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
+    console.log("DOM content loaded");
     // Start with the Holdings page active
     showPage('holdings');
     fetchAssets();

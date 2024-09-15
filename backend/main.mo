@@ -53,10 +53,12 @@ actor {
   };
 
   public query func getAssets() : async Text {
+    Debug.print("Fetching assets");
     assetsToJSON();
   };
 
   public func addAsset(symbol: Text, name: Text, quantity: Float, assetType: Text) : async Text {
+    Debug.print("Adding asset: " # symbol);
     let newAsset: Asset = {
       id = nextId;
       symbol = toUppercase(symbol);
