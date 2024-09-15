@@ -1,14 +1,6 @@
-type Stock = 
- record {
-   name: text;
-   purchasePrice: float64;
-   quantity: nat;
-   symbol: text;
- };
 service : {
-  addStock: (text, text, nat, float64) -> ();
-  getAllStocks: () -> (vec Stock) query;
-  init: () -> ();
-  removeStock: (text) -> (bool);
-  updateStock: (text, nat, float64) -> (bool);
+  addAsset: (text, text, float64, text) -> (text);
+  deleteAsset: (nat) -> (bool);
+  getAssets: () -> (text) query;
+  updateAsset: (nat, text, text, float64, text) -> (opt text);
 }
