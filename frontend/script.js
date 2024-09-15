@@ -62,12 +62,14 @@ async function displayHoldings() {
                     $${totalGainValue.toFixed(2)}
                 </td>
                 <td>${asset.assetType}</td>
+                <td><i class="delete-icon" data-feather="trash-2" onclick="deleteAsset('${asset.symbol}')"></i></td>
             `;
             holdingsBody.appendChild(row);
         } catch (error) {
             console.error(`Error displaying asset ${asset.symbol}:`, error);
         }
     }
+    feather.replace();
 }
 
 async function fetchMarketData(symbol) {
@@ -235,6 +237,15 @@ function updatePerformanceChart(labels, data) {
     });
 }
 
+function deleteAsset(symbol) {
+    if (confirm(`Are you sure you want to delete the asset ${symbol}?`)) {
+        assets = assets.filter(asset => asset.symbol !== symbol);
+        saveAssets();
+        displayHoldings();
+        updateCharts();
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM content loaded");
     showPage('holdings');
@@ -251,3 +262,4 @@ window.onclick = function(event) {
 window.showAddAssetModal = showAddAssetModal;
 window.closeAddAssetModal = closeAddAssetModal;
 window.showPage = showPage;
+window.deleteAsset = deleteAsset;

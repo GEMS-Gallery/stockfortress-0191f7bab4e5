@@ -226,3 +226,8 @@ header {
 .modal-content button:hover {
     background-color: #555;
 }
+
+.delete-icon {
+    color: var(--negative-color);
+    cursor: pointer;
+}
