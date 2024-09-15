@@ -34,7 +34,7 @@ async function displayHoldings() {
 
     for (const asset of assets) {
         const marketData = await fetchMarketData(asset.symbol);
-        const marketPrice = marketData.currentPrice || 0;
+        const marketPrice = marketData?.currentPrice ?? 0;
         const marketValue = marketPrice * asset.quantity;
         const totalGainValue = marketValue - (asset.purchasePrice * asset.quantity);
         const totalGainPercent = asset.purchasePrice > 0 ? (totalGainValue / (asset.purchasePrice * asset.quantity)) * 100 : 0;
@@ -143,7 +143,7 @@ async function updateCharts() {
             assetTypes[asset.assetType] = 0;
         }
         const marketData = await fetchMarketData(asset.symbol);
-        const marketValue = marketData.currentPrice * asset.quantity;
+        const marketValue = (marketData?.currentPrice ?? 0) * asset.quantity;
         assetTypes[asset.assetType] += marketValue;
 
         const totalGainValue = marketValue - (asset.purchasePrice * asset.quantity);
