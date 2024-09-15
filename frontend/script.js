@@ -28,7 +28,7 @@ async function fetchAssets() {
         updateCharts();
     } catch (error) {
         console.error('Error fetching assets:', error);
-        alert('Failed to fetch assets. Please try again later.');
+        alert('Failed to fetch assets. Please check the console for more details and ensure the backend is properly deployed.');
     }
 }
 
@@ -144,7 +144,7 @@ document.getElementById('add-asset-form').addEventListener('submit', async (e) =
         closeAddAssetModal();
     } catch (error) {
         console.error('Error adding asset:', error);
-        alert('Failed to add asset. Please try again.');
+        alert('Failed to add asset. Please check the console for more details and ensure the backend is properly deployed.');
     }
 });
 
