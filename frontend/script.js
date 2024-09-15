@@ -38,15 +38,15 @@ async function displayHoldings() {
     for (const asset of assets) {
         const marketData = await fetchMarketData(asset.symbol);
         const marketPrice = marketData.currentPrice;
-        const previousClose = marketData.previousClose;
         const marketValue = marketPrice * asset.quantity;
-        const totalGainValue = marketValue - (previousClose * asset.quantity);
-        const totalGainPercent = (totalGainValue / (previousClose * asset.quantity)) * 100;
+        const totalGainValue = marketValue - (asset.purchasePrice * asset.quantity);
+        const totalGainPercent = (totalGainValue / (asset.purchasePrice * asset.quantity)) * 100;
 
         const row = document.createElement('tr');
         row.innerHTML = `
             <td><span class="stock-symbol">${asset.symbol}</span> ${asset.name}</td>
             <td>${asset.quantity}</td>
+            <td>$${asset.purchasePrice.toFixed(2)}</td>
             <td>$${marketValue.toFixed(2)}</td>
             <td>$${marketPrice.toFixed(2)}</td>
             <td class="${totalGainValue >= 0 ? 'positive' : 'negative'}">
@@ -129,11 +129,12 @@ document.getElementById('add-asset-form').addEventListener('submit', async (e) =
     const symbol = document.getElementById('symbol').value.toUpperCase();
     const name = document.getElementById('name').value;
     const quantity = parseFloat(document.getElementById('quantity').value);
+    const purchasePrice = parseFloat(document.getElementById('purchasePrice').value);
     const type = document.getElementById('type').value;
 
     try {
-        console.log("Adding asset:", { symbol, name, quantity, type });
-        const newAsset = { symbol, name, quantity, assetType: type };
+        console.log("Adding asset:", { symbol, name, quantity, purchasePrice, type });
+        const newAsset = { symbol, name, quantity, purchasePrice, assetType: type };
         assets.push(newAsset);
         saveAssets();
         displayHoldings();
@@ -197,9 +198,8 @@ async function updateCharts() {
     for (const asset of assets) {
         const marketData = await fetchMarketData(asset.symbol);
         const marketPrice = marketData.currentPrice;
-        const previousClose = marketData.previousClose;
         const marketValue = marketPrice * asset.quantity;
-        const totalGainValue = marketValue - (previousClose * asset.quantity);
+        const totalGainValue = marketValue - (asset.purchasePrice * asset.quantity);
         performanceData.push(totalGainValue);
     }
 
