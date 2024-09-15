@@ -9,6 +9,11 @@ let assets = [];
 // Replace with your actual canister ID (should be a valid base32-encoded string)
 const canisterId = 'rrkah-fqaaa-aaaaa-aaaaq-cai';
 const agent = new HttpAgent({ host: "https://ic0.app" });
+agent.fetchRootKey().catch(err => {
+  console.warn("Unable to fetch root key. Check to ensure that your local replica is running");
+  console.error(err);
+});
+
 const backend = Actor.createActor(idlFactory, { agent, canisterId });
 
 // Fetch assets from the canister
@@ -23,6 +28,7 @@ async function fetchAssets() {
         updateCharts();
     } catch (error) {
         console.error('Error fetching assets:', error);
+        alert('Failed to fetch assets. Please try again later.');
     }
 }
 
@@ -138,6 +144,7 @@ document.getElementById('add-asset-form').addEventListener('submit', async (e) =
         closeAddAssetModal();
     } catch (error) {
         console.error('Error adding asset:', error);
+        alert('Failed to add asset. Please try again.');
     }
 });
 
