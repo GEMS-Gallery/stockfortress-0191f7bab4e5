@@ -1,9 +1,9 @@
-// Initialize Feather Icons
 feather.replace();
 
 let assets = [];
+let allocationChart = null;
+let performanceChart = null;
 
-// Load assets from localStorage
 function loadAssets() {
     const storedAssets = localStorage.getItem('assets');
     if (storedAssets) {
@@ -11,18 +11,16 @@ function loadAssets() {
     }
 }
 
-// Save assets to localStorage
 function saveAssets() {
     localStorage.setItem('assets', JSON.stringify(assets));
 }
 
-// Fetch assets (now from localStorage)
 async function fetchAssets() {
     try {
         console.log("Fetching assets...");
         loadAssets();
         console.log("Loaded assets:", assets);
-        displayHoldings();
+        await displayHoldings();
         updateCharts();
     } catch (error) {
         console.error('Error fetching assets:', error);
@@ -30,17 +28,16 @@ async function fetchAssets() {
     }
 }
 
-// Display holdings in the table
 async function displayHoldings() {
     const holdingsBody = document.getElementById('holdings-body');
     holdingsBody.innerHTML = '';
 
     for (const asset of assets) {
         const marketData = await fetchMarketData(asset.symbol);
-        const marketPrice = marketData.currentPrice;
+        const marketPrice = marketData.currentPrice || 0;
         const marketValue = marketPrice * asset.quantity;
         const totalGainValue = marketValue - (asset.purchasePrice * asset.quantity);
-        const totalGainPercent = (totalGainValue / (asset.purchasePrice * asset.quantity)) * 100;
+        const totalGainPercent = asset.purchasePrice > 0 ? (totalGainValue / (asset.purchasePrice * asset.quantity)) * 100 : 0;
 
         const row = document.createElement('tr');
         row.innerHTML = `
@@ -59,19 +56,12 @@ async function displayHoldings() {
     }
 }
 
-// Fetch market data from a public API
 async function fetchMarketData(symbol) {
     try {
-        // Use a public API like Finnhub or Alpha Vantage
-        // For this example, we'll use Alpha Vantage
-        const apiKey = 'YOUR_ALPHA_VANTAGE_API_KEY'; // Replace with your API key
-        const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${apiKey}`;
-        const response = await fetch(url);
-        const data = await response.json();
-        const quote = data['Global Quote'];
+        // Mock API call for development
         return {
-            currentPrice: parseFloat(quote['05. price']),
-            previousClose: parseFloat(quote['08. previous close']),
+            currentPrice: Math.random() * 1000,
+            previousClose: Math.random() * 1000,
         };
     } catch (error) {
         console.error('Error fetching market data:', error);
@@ -82,7 +72,6 @@ async function fetchMarketData(symbol) {
     }
 }
 
-// Function to switch between Holdings and Allocations pages
 function showPage(pageName) {
     console.log("Showing page:", pageName);
     const pages = document.querySelectorAll('#holdings-page, #allocations-page');
@@ -107,14 +96,12 @@ function showPage(pageName) {
     }
 }
 
-// Show Add Asset Modal
 function showAddAssetModal() {
     console.log("Showing add asset modal");
     const modal = document.getElementById('add-asset-modal');
     modal.style.display = 'block';
 }
 
-// Close Add Asset Modal
 function closeAddAssetModal() {
     console.log("Closing add asset modal");
     const modal = document.getElementById('add-asset-modal');
@@ -122,7 +109,6 @@ function closeAddAssetModal() {
     document.getElementById('add-asset-form').reset();
 }
 
-// Handle Add Asset Form Submission
 document.getElementById('add-asset-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     console.log("Add asset form submitted");
@@ -137,7 +123,7 @@ document.getElementById('add-asset-form').addEventListener('submit', async (e) =
         const newAsset = { symbol, name, quantity, purchasePrice, assetType: type };
         assets.push(newAsset);
         saveAssets();
-        displayHoldings();
+        await displayHoldings();
         updateCharts();
         closeAddAssetModal();
     } catch (error) {
@@ -146,11 +132,12 @@ document.getElementById('add-asset-form').addEventListener('submit', async (e) =
     }
 });
 
-// Update Charts
 async function updateCharts() {
     console.log("Updating charts");
-    // Allocation Chart
     const assetTypes = {};
+    const performanceData = [];
+    const performanceLabels = [];
+
     for (const asset of assets) {
         if (!assetTypes[asset.assetType]) {
             assetTypes[asset.assetType] = 0;
@@ -158,18 +145,30 @@ async function updateCharts() {
         const marketData = await fetchMarketData(asset.symbol);
         const marketValue = marketData.currentPrice * asset.quantity;
         assetTypes[asset.assetType] += marketValue;
+
+        const totalGainValue = marketValue - (asset.purchasePrice * asset.quantity);
+        performanceData.push(totalGainValue);
+        performanceLabels.push(asset.symbol);
     }
 
     const allocationLabels = Object.keys(assetTypes);
     const allocationData = Object.values(assetTypes);
 
-    const allocationChartCtx = document.getElementById('allocationChart').getContext('2d');
-    new Chart(allocationChartCtx, {
+    updateAllocationChart(allocationLabels, allocationData);
+    updatePerformanceChart(performanceLabels, performanceData);
+}
+
+function updateAllocationChart(labels, data) {
+    const ctx = document.getElementById('allocationChart').getContext('2d');
+    if (allocationChart) {
+        allocationChart.destroy();
+    }
+    allocationChart = new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: allocationLabels,
+            labels: labels,
             datasets: [{
-                data: allocationData,
+                data: data,
                 backgroundColor: ['#2c3e50', '#34495e', '#7f8c8d', '#95a5a6', '#bdc3c7']
             }]
         },
@@ -191,28 +190,22 @@ async function updateCharts() {
             }
         }
     });
+}
 
-    // Performance Chart
-    const performanceLabels = assets.map(asset => asset.symbol);
-    const performanceData = [];
-    for (const asset of assets) {
-        const marketData = await fetchMarketData(asset.symbol);
-        const marketPrice = marketData.currentPrice;
-        const marketValue = marketPrice * asset.quantity;
-        const totalGainValue = marketValue - (asset.purchasePrice * asset.quantity);
-        performanceData.push(totalGainValue);
+function updatePerformanceChart(labels, data) {
+    const ctx = document.getElementById('performanceChart').getContext('2d');
+    if (performanceChart) {
+        performanceChart.destroy();
     }
-
-    const performanceChartCtx = document.getElementById('performanceChart').getContext('2d');
-    new Chart(performanceChartCtx, {
+    performanceChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: performanceLabels,
+            labels: labels,
             datasets: [{
                 label: 'Performance ($)',
-                data: performanceData,
-                backgroundColor: performanceData.map(value => value >= 0 ? 'rgba(76, 175, 80, 0.6)' : 'rgba(244, 67, 54, 0.6)'),
-                borderColor: performanceData.map(value => value >= 0 ? 'rgba(76, 175, 80, 1)' : 'rgba(244, 67, 54, 1)'),
+                data: data,
+                backgroundColor: data.map(value => value >= 0 ? 'rgba(76, 175, 80, 0.6)' : 'rgba(244, 67, 54, 0.6)'),
+                borderColor: data.map(value => value >= 0 ? 'rgba(76, 175, 80, 1)' : 'rgba(244, 67, 54, 1)'),
                 borderWidth: 1
             }]
         },
@@ -228,15 +221,12 @@ async function updateCharts() {
     });
 }
 
-// Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM content loaded");
-    // Start with the Holdings page active
     showPage('holdings');
     fetchAssets();
 });
 
-// Close modal when clicking outside of it
 window.onclick = function(event) {
     const modal = document.getElementById('add-asset-modal');
     if (event.target == modal) {
@@ -244,7 +234,6 @@ window.onclick = function(event) {
     }
 };
 
-// Expose functions to window object for HTML onclick attributes
 window.showAddAssetModal = showAddAssetModal;
 window.closeAddAssetModal = closeAddAssetModal;
 window.showPage = showPage;

@@ -1,26 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Meta tags and page title -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portfolio Tracker</title>
-
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-
-    <!-- Feather Icons CDN -->
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
-
-    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <!-- Link to the CSS file -->
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <!-- Sidebar -->
         <div class="sidebar">
             <div class="sidebar-icon" data-feather="grid"></div>
             <div class="sidebar-icon" data-feather="bar-chart-2"></div>
@@ -28,8 +18,6 @@
             <div class="sidebar-icon" data-feather="folder"></div>
             <div class="sidebar-icon" data-feather="settings"></div>
         </div>
-
-        <!-- Main Content -->
         <main class="main-content">
             <header>
                 <h1>Holdings</h1>
@@ -38,14 +26,10 @@
                     Add Asset
                 </button>
             </header>
-
-            <!-- Tabs -->
             <div class="tabs">
                 <span class="tab active" onclick="showPage('holdings')">Holdings</span>
                 <span class="tab" onclick="showPage('allocations')">Allocations</span>
             </div>
-
-            <!-- Holdings Page -->
             <div id="holdings-page" class="active">
                 <table class="holdings-table" id="holdings-table">
                     <thead>
@@ -59,13 +43,9 @@
                             <th>Type</th>
                         </tr>
                     </thead>
-                    <tbody id="holdings-body">
-                        <!-- Holdings will be dynamically inserted here -->
-                    </tbody>
+                    <tbody id="holdings-body"></tbody>
                 </table>
             </div>
-
-            <!-- Allocations Page -->
             <div id="allocations-page">
                 <div class="charts-container">
                     <div class="chart-card">
@@ -80,8 +60,6 @@
             </div>
         </main>
     </div>
-
-    <!-- Add Asset Modal -->
     <div id="add-asset-modal" class="modal">
         <div class="modal-content">
             <span class="close-button" onclick="closeAddAssetModal()">&times;</span>
@@ -106,8 +84,6 @@
             </form>
         </div>
     </div>
-
-    <!-- Link to the JavaScript file -->
     <script type="module" src="script.js"></script>
 </body>
 </html>
