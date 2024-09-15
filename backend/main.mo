@@ -57,7 +57,7 @@ actor {
     assetsToJSON();
   };
 
-  public shared(msg) func addAsset(symbol: Text, name: Text, quantity: Float, assetType: Text) : async Text {
+  public func addAsset(symbol: Text, name: Text, quantity: Float, assetType: Text) : async Text {
     Debug.print("Adding asset: " # symbol);
     let newAsset: Asset = {
       id = nextId;
@@ -71,7 +71,7 @@ actor {
     assetToJSON(newAsset);
   };
 
-  public shared(msg) func updateAsset(id: Nat, symbol: Text, name: Text, quantity: Float, assetType: Text) : async ?Text {
+  public func updateAsset(id: Nat, symbol: Text, name: Text, quantity: Float, assetType: Text) : async ?Text {
     switch (assets.get(id)) {
       case (null) { null };
       case (?existingAsset) {
@@ -88,7 +88,7 @@ actor {
     };
   };
 
-  public shared(msg) func deleteAsset(id: Nat) : async Bool {
+  public func deleteAsset(id: Nat) : async Bool {
     switch (assets.remove(id)) {
       case (null) { false };
       case (?_) { true };
