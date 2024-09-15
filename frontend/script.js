@@ -7,7 +7,17 @@ let performanceChart = null;
 function loadAssets() {
     const storedAssets = localStorage.getItem('assets');
     if (storedAssets) {
-        assets = JSON.parse(storedAssets);
+        try {
+            assets = JSON.parse(storedAssets);
+            assets = assets.map(asset => ({
+                ...asset,
+                quantity: parseFloat(asset.quantity) || 0,
+                purchasePrice: parseFloat(asset.purchasePrice) || 0
+            }));
+        } catch (error) {
+            console.error('Error parsing stored assets:', error);
+            assets = [];
+        }
     }
 }
 
@@ -33,26 +43,30 @@ async function displayHoldings() {
     holdingsBody.innerHTML = '';
 
     for (const asset of assets) {
-        const marketData = await fetchMarketData(asset.symbol);
-        const marketPrice = marketData?.currentPrice ?? 0;
-        const marketValue = marketPrice * asset.quantity;
-        const totalGainValue = marketValue - (asset.purchasePrice * asset.quantity);
-        const totalGainPercent = asset.purchasePrice > 0 ? (totalGainValue / (asset.purchasePrice * asset.quantity)) * 100 : 0;
+        try {
+            const marketData = await fetchMarketData(asset.symbol);
+            const marketPrice = marketData?.currentPrice ?? 0;
+            const marketValue = marketPrice * asset.quantity;
+            const totalGainValue = marketValue - (asset.purchasePrice * asset.quantity);
+            const totalGainPercent = asset.purchasePrice > 0 ? (totalGainValue / (asset.purchasePrice * asset.quantity)) * 100 : 0;
 
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td><span class="stock-symbol">${asset.symbol}</span> ${asset.name}</td>
-            <td>${asset.quantity}</td>
-            <td>$${asset.purchasePrice.toFixed(2)}</td>
-            <td>$${marketValue.toFixed(2)}</td>
-            <td>$${marketPrice.toFixed(2)}</td>
-            <td class="${totalGainValue >= 0 ? 'positive' : 'negative'}">
-                ${totalGainPercent >= 0 ? '+' : ''}${totalGainPercent.toFixed(2)}%<br>
-                $${totalGainValue.toFixed(2)}
-            </td>
-            <td>${asset.assetType}</td>
-        `;
-        holdingsBody.appendChild(row);
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><span class="stock-symbol">${asset.symbol}</span> ${asset.name}</td>
+                <td>${asset.quantity.toFixed(2)}</td>
+                <td>$${asset.purchasePrice.toFixed(2)}</td>
+                <td>$${marketValue.toFixed(2)}</td>
+                <td>$${marketPrice.toFixed(2)}</td>
+                <td class="${totalGainValue >= 0 ? 'positive' : 'negative'}">
+                    ${totalGainPercent >= 0 ? '+' : ''}${totalGainPercent.toFixed(2)}%<br>
+                    $${totalGainValue.toFixed(2)}
+                </td>
+                <td>${asset.assetType}</td>
+            `;
+            holdingsBody.appendChild(row);
+        } catch (error) {
+            console.error(`Error displaying asset ${asset.symbol}:`, error);
+        }
     }
 }
 
